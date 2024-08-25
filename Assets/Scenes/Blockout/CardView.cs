@@ -31,14 +31,33 @@ public class CardView : MonoBehaviour {
 		if (m_animationCoroutine is { }) {
 			StopCoroutine(m_animationCoroutine);
 		}
-		m_animationCoroutine = StartCoroutine(RevealCoroutine(callback));
+		m_animationCoroutine = StartCoroutine(RotateAnimationCoroutine(true, callback));
 	}
 
-	private IEnumerator RevealCoroutine(Action callback) {
+	public void HideWithDelay(float delay, Action callback) {
+		if (m_animationCoroutine is { }) {
+			StopCoroutine(m_animationCoroutine);
+		}
+		
+		m_animationCoroutine = StartCoroutine(
+			PlayAfterDelay(delay, () =>
+				m_animationCoroutine = StartCoroutine(RotateAnimationCoroutine(false, callback))
+				));
+	}
+
+	private IEnumerator PlayAfterDelay(float delay, Action callback) {
+		yield return new WaitForSeconds(delay);
+		m_animationCoroutine = null;
+		callback?.Invoke();
+	}
+
+	private IEnumerator RotateAnimationCoroutine(bool show, Action callback) {
 		var elapsedTime = 0f;
 		var halfTime = REVEAL_TIME * .5f;
 		transform.rotation = quaternion.identity;
-		SetBackSprite();
+		Action forwardAction = show ? () => SetFrontSprite() : () => SetBackSprite();
+		Action backwardAction = show ? () => SetBackSprite() : () => SetFrontSprite();
+		backwardAction();
 
 		var previousAngle = 0f;
 		while (elapsedTime < halfTime) { // flip 90 degrees for hiding the content
@@ -49,7 +68,7 @@ public class CardView : MonoBehaviour {
 			yield return null; // wait for the next frame without allocating an extra memory
 		}
 		
-		SetFrontSprite();
+		forwardAction();
 
 		previousAngle = 0f;
 		while (elapsedTime < REVEAL_TIME) { // flip 90 degrees for showing the content
@@ -61,6 +80,8 @@ public class CardView : MonoBehaviour {
 		}
 
 		transform.rotation = quaternion.identity;
+		m_animationCoroutine = null;
+		callback?.Invoke();
 	}
 
 	private void SetFrontSprite() {

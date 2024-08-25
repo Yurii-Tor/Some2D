@@ -85,7 +85,7 @@ public class GamePlayTest : MonoBehaviour{
             worldPosision.z = 0;
             
             var clickedCell = m_grid.WorldToCell(worldPosision);
-            m_views[clickedCell].Reveal((() => {Debug.LogError("revealed");}));
+            m_views[clickedCell].Reveal((() => {m_views[clickedCell].HideWithDelay(1f, () => Debug.LogError("Done"));}));
 
         }
     }
