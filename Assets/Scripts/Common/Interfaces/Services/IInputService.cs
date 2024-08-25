@@ -1,3 +1,3 @@
 namespace MechingCards.Common {
-	public class ISaveModel { }
+	public class IInputService { }
 }

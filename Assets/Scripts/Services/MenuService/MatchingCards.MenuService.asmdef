@@ -1,3 +1,16 @@
 {
-	"name": "MatchingCards.MenuService"
+    "name": "MatchingCards.MenuService",
+    "rootNamespace": "",
+    "references": [
+        "GUID:69abb037f909f5a4ead873d66b7e59a8"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
