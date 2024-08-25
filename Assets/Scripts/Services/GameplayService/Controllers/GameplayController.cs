@@ -89,8 +89,11 @@ namespace MechingCards.GameplayService {
                 worldPosision.z = 0;
 
                 var clickedCell = m_grid.WorldToCell(worldPosision);
-                m_views[clickedCell].Reveal((() => {
-                    m_views[clickedCell].HideWithDelay(1f, () => Debug.LogError("Done"));
+                if (!m_views.TryGetValue(clickedCell, out var card)) {
+                    return;
+                }
+                card.Reveal((() => {
+                    card.HideWithDelay(1f, () => Debug.LogError("Done"));
                 }));
             }
         }
