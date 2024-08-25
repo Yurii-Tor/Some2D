@@ -17,6 +17,7 @@ public class GamePlayTest : MonoBehaviour{
     private Dictionary<int, Sprite> m_idMap = new();
         
     private Dictionary<Vector3Int, Card> m_cellContent = new();
+    private Dictionary<Vector3Int, CardView> m_views = new();
     // Start is called before the first frame update
     void Start() {
         var count = m_xSize * m_ySize / 2;
@@ -61,9 +62,31 @@ public class GamePlayTest : MonoBehaviour{
 
         foreach (var cell in m_cellContent) {
             var go = Instantiate(m_cardPrefab, m_grid.GetCellCenterWorld(cell.Key), Quaternion.identity);
-            var renderer = go.GetComponent<SpriteRenderer>();
-            renderer.sprite = m_cardsMapping.SpritesList[cell.Value.ID];
+          
+            var view = go.GetComponent<CardView>();
+                
+            if (view is not { }) {
+                //TODO: put debug log error
+                return;
+            }
+            
+            var sprite = m_cardsMapping.SpritesList[cell.Value.ID];
+
+            m_views.Add(cell.Key, view);
+            view.Initialize(m_cardsMapping.BackSideSprite, sprite);
         }
     }
 
+    void Update() {
+        if (Input.GetMouseButtonUp(0)) { // 0 is for left mouse button or first touch
+            var mainCamera = Camera.main;
+            var clickPosition = Input.mousePosition;
+            var worldPosision = mainCamera.ScreenToWorldPoint(clickPosition);
+            worldPosision.z = 0;
+            
+            var clickedCell = m_grid.WorldToCell(worldPosision);
+            m_views[clickedCell].Reveal((() => {Debug.LogError("revealed");}));
+
+        }
+    }
 }
