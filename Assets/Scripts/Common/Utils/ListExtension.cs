@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 
 public static class ListExtension {
-    
     public static void Shuffle<T>(this IList<T> list) {
         Random rng = new Random();
         int n = list.Count;
@@ -15,5 +14,4 @@ public static class ListExtension {
             list[n] = value;
         }
     }
-    
 }

@@ -1,3 +1,5 @@
 namespace MechingCards.Common {
-	public class IMenuService { }
+	public interface IMenuService {
+		void Initialize();
+	}
 }

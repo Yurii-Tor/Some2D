@@ -1,3 +1,4 @@
 namespace MechingCards.Common {
-	public class IInputService { }
+	public interface IInputService {
+	}
 }

@@ -1,9 +1,8 @@
 {
-    "name": "MatchingCards.GameplayService",
+    "name": "MechingCards.InputService",
     "rootNamespace": "",
     "references": [
-        "GUID:69abb037f909f5a4ead873d66b7e59a8",
-        "GUID:d8b63aba1907145bea998dd612889d6b"
+        "GUID:69abb037f909f5a4ead873d66b7e59a8"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

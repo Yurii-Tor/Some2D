@@ -1,3 +1,7 @@
+using System;
+
 namespace MechingCards.Common {
-	public class ISaveSystemService { }
+	public interface ISaveSystemService {
+		void Initialize(Action callback);
+	}
 }

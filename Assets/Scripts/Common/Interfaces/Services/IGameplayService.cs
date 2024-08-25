@@ -1,3 +1,5 @@
 namespace MechingCards.Common {
-	public class IGameplayService { }
+	public interface IGameplayService {
+		void Initialize();
+	}
 }

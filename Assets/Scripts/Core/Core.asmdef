@@ -1,8 +1,12 @@
 {
-    "name": "InputService",
+    "name": "Core",
     "rootNamespace": "",
     "references": [
-        "GUID:69abb037f909f5a4ead873d66b7e59a8"
+        "GUID:69abb037f909f5a4ead873d66b7e59a8",
+        "GUID:201e6dd8592e4304e841d9b84062b056",
+        "GUID:548b8c1685868e441aac1050c3b018e5",
+        "GUID:c2869969ea6dcc84c949c4bc8c832413",
+        "GUID:a6e2a9c371c59724fb171aea59c82d82"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
