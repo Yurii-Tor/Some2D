@@ -20,7 +20,8 @@ namespace MechingCards.GameplayService {
         private Dictionary<Vector3Int, CardView> m_views = new();
 
         // Start is called before the first frame update
-        void Start() {
+        private void Start() {
+            // TODO: block inputs here
             var count = m_xSize * m_ySize / 2;
 
             // get random sprites
@@ -78,9 +79,24 @@ namespace MechingCards.GameplayService {
                 m_views.Add(cell.Key, view);
                 view.Initialize(m_cardsMapping.BackSideSprite, sprite);
             }
+            
+            ShowIntro();
         }
 
-        void Update() {
+        private void ShowIntro() {
+            foreach (var view in m_views) {
+                var card = view.Value;
+                card.Reveal((() => {
+                    card.HideWithDelay(3f, () => {
+                        Debug.LogError("Done");
+                        //TODO: unlock inputs here
+                    });
+                }));
+            }
+            
+        }
+
+        private void Update() {
             if (Input.GetMouseButtonUp(0)) {
                 // 0 is for left mouse button or first touch
                 var mainCamera = Camera.main;
