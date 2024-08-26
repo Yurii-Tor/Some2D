@@ -9,5 +9,7 @@ namespace MechingCards.GameplayService {
         public Action OnGameFinished;
         public Action OnMatch;
         public Action OnTurn;
+        public Action OnFlip;
+        public Action OnDismatch;
     }
 }

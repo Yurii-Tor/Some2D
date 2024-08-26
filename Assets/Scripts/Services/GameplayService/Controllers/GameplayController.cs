@@ -30,6 +30,8 @@ namespace MechingCards.GameplayService {
 
         private Action m_onTurn;
         private Action m_onMatch;
+        private Action m_onFlip;
+        private Action m_onDismatch;
 
         public void Initialize(GameplayData data) {
             m_inputController = data.InputController;
@@ -41,6 +43,8 @@ namespace MechingCards.GameplayService {
             m_onGameFinished = data.OnGameFinished;
             m_onMatch = data.OnMatch;
             m_onTurn = data.OnTurn;
+            m_onDismatch = data.OnDismatch;
+            m_onFlip = data.OnFlip;
             
             CreateBoard();
             CameraUtils.SetupCamera(m_mainCamera, m_xSize, m_ySize, m_grid);
@@ -130,7 +134,6 @@ namespace MechingCards.GameplayService {
                     });
                 }));
             }
-            
         }
 
         private void Update() {
@@ -162,6 +165,7 @@ namespace MechingCards.GameplayService {
             card.Lock();
 
             var awaitningCard = m_awaitingCard;
+            m_onFlip?.Invoke();
             view.Reveal(() => OnRevealed(clickedCell, awaitningCard));
             
             if (m_awaitingCard is not { }) {
@@ -169,7 +173,6 @@ namespace MechingCards.GameplayService {
             } else {
                 m_awaitingCard = null;
             }
-
         }
 
         private void OnRevealed(Vector3Int currentCell, Vector3Int? awaitingCardCell) {
@@ -190,12 +193,13 @@ namespace MechingCards.GameplayService {
             } else {
                 currentView.HideWithDelay(1f, () => currentCard.Unlock());
                 awaitingView.HideWithDelay(1f, () => awaitingCard.Unlock());
+                m_onDismatch?.Invoke();
             }
             m_onTurn?.Invoke();
         }
 
         private void AcquirePair(Vector3Int cell1, Vector3Int cell2) {
-            if (m_views.Count == 2) {
+            if (m_views.Count == 2) { // meaning the last pair left
                 m_onGameFinished?.Invoke();
                 return;
             }
