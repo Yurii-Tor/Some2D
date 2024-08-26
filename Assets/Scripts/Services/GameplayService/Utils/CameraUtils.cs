@@ -7,14 +7,37 @@ namespace MechingCards.GameplayService {
 			camera.transform.position =
 				new Vector3(centerPosition.x, centerPosition.y, camera.transform.position.z);
 
-			var orthographicSize = Mathf.Max(x, y) / 2f;
-			camera.orthographicSize = orthographicSize;
+			// Calculate the required orthographic size
+			float verticalSize = x * grid.cellSize.y * 0.5f;
+			float horizontalSize = (x * grid.cellSize.x * 0.5f) / camera.aspect;
+    
+			camera.orthographicSize = Mathf.Max(verticalSize, horizontalSize);
 		}
 		
 		private static Vector3 CalculateGridCenter(int x, int y, Grid grid) {
 			var centerX = (x - 1) * .5f;
 			var centerY = (y - 1) * .5f;
-			return grid.GetCellCenterWorld(new Vector3Int(Mathf.RoundToInt(centerX), Mathf.RoundToInt(centerY), 0));
+			
+			// Convert to cell coordinates
+			Vector3Int cellCoordinates = new Vector3Int(
+				Mathf.FloorToInt(centerX),
+				Mathf.FloorToInt(centerY),
+				0
+			);
+
+			// Get the world position of the cell
+			Vector3 cellCenter = grid.GetCellCenterWorld(cellCoordinates);
+
+			// For even dimensions, adjust by half a cell size
+			if (x % 2 == 0) {
+				cellCenter.x += grid.cellSize.x * 0.5f;
+			}
+
+			if (y % 2 == 0) {
+				cellCenter.y += grid.cellSize.y * 0.5f;
+			}
+
+			return cellCenter;
 		}
 	}
 }
