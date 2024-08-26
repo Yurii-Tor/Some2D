@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MechingCards.Common;
 using UnityEngine;
 
@@ -8,11 +9,13 @@ namespace MechingCards.GameplayService {
 		private UIController m_uiController;
 		private SoundController m_soundController;
 		private IInputService m_inputService;
-		public GameplayService(IInputService inputService) {
+		private ISaveSystemService m_saveSystemService;
+		public GameplayService(IInputService inputService, ISaveSystemService saveSystemService) {
 			m_inputService = inputService;
+			m_saveSystemService = saveSystemService;
 		}
 
-		public void Initialize(int rows, int columns, Action onGameFinished) {
+		public void Initialize(int rows, int columns, Dictionary<Vector3Int, int> saveData, Action onGameFinished) {
 			var gameplayController = Resources.Load("GameplayController");
 			var gpgo = GameObject.Instantiate(gameplayController, null) as GameObject;
 			m_gameplayController = gpgo.GetComponent<GameplayController>();
@@ -28,7 +31,6 @@ namespace MechingCards.GameplayService {
 			}
 
 			Action exitAction = () => {
-					m_soundController.PlayFinish();
 					m_gameplayController.Deinitialize();
 					GameObject.Destroy(gpgo);
 					GameObject.Destroy(uigo);
@@ -38,7 +40,7 @@ namespace MechingCards.GameplayService {
 			
 			m_uiController.Initialize(0, 0, exitAction);
 			
-			var data = new GameplayData() {
+			var gpData = new GameplayData {
 				Rows = rows,
 				Columns = columns,
 				InputController = m_inputService.InputController,
@@ -49,10 +51,12 @@ namespace MechingCards.GameplayService {
 				OnTurn = m_uiController.Turn,
 				OnGameFinished = exitAction,
 				OnDismatch = m_soundController.PlayDismatch,
-				OnFlip = m_soundController.PlayFlipping
+				OnFlip = m_soundController.PlayFlipping,
+				OnSave = m_saveSystemService.Save,
+				OnWin = m_soundController.PlayFinish
 			};
 			
-			m_gameplayController.Initialize(data);
+			m_gameplayController.Initialize(gpData, saveData);
 		}
 	}
 }

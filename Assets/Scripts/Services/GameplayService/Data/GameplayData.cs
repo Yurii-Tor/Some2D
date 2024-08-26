@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using MechingCards.Common;
+using UnityEngine;
 
 namespace MechingCards.GameplayService {
     public struct GameplayData {
@@ -11,5 +13,7 @@ namespace MechingCards.GameplayService {
         public Action OnTurn;
         public Action OnFlip;
         public Action OnDismatch;
+        public Action OnWin;
+        public Action<Dictionary<Vector3Int, int>, Vector2Int> OnSave;
     }
 }

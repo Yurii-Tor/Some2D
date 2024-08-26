@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using MechingCards.Common;
 using UnityEngine;
 
@@ -11,15 +13,20 @@ namespace MechingCards.MenuService {
 			m_gameplayService = gameplayService;
 		}
 
-		public void Initialize() {
+		public void Initialize(Dictionary<Vector3Int, int> data, Vector2Int size) {
 			var menuController = Resources.Load("MenuController");
 			var mgo = GameObject.Instantiate(menuController, null) as GameObject;
 			m_menuController = mgo.GetComponent<MenuController>();
-			m_menuController.Initialize(OnStart);
+			m_menuController.Initialize(size, OnStart);
 		}
 
 		private void OnStart(int rows, int columns) {
-			m_gameplayService.Initialize(rows, columns, Initialize);
+			m_gameplayService.Initialize(rows, columns, null, () => Initialize(null, Vector2Int.zero));
+			GameObject.Destroy(m_menuController.gameObject);
+		}
+
+		private void OnContinue(int rows, int columns, Dictionary<Vector3Int, int> data) {
+			m_gameplayService.Initialize(rows, columns, data, () => Initialize(null, Vector2Int.zero));
 			GameObject.Destroy(m_menuController.gameObject);
 		}
 	}

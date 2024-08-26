@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MechingCards.Common;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -32,19 +33,23 @@ namespace MechingCards.GameplayService {
         private Action m_onMatch;
         private Action m_onFlip;
         private Action m_onDismatch;
+        private Action m_onWin;
+        private Action<Dictionary<Vector3Int, int>, Vector2Int> m_onSaveData;
 
-        public void Initialize(GameplayData data) {
-            m_inputController = data.InputController;
+        public void Initialize(GameplayData gameplayData, Dictionary<Vector3Int, int> saveData) {
+            m_inputController = gameplayData.InputController;
             m_inputController.BlockInput();
             
             m_mainCamera = Camera.main;
-            m_xSize = data.Columns;
-            m_ySize = data.Rows;
-            m_onGameFinished = data.OnGameFinished;
-            m_onMatch = data.OnMatch;
-            m_onTurn = data.OnTurn;
-            m_onDismatch = data.OnDismatch;
-            m_onFlip = data.OnFlip;
+            m_xSize = gameplayData.Columns;
+            m_ySize = gameplayData.Rows;
+            m_onGameFinished = gameplayData.OnGameFinished;
+            m_onMatch = gameplayData.OnMatch;
+            m_onTurn = gameplayData.OnTurn;
+            m_onDismatch = gameplayData.OnDismatch;
+            m_onFlip = gameplayData.OnFlip;
+            m_onWin = gameplayData.OnWin;
+            m_onSaveData = gameplayData.OnSave;
             
             CreateBoard();
             CameraUtils.SetupCamera(m_mainCamera, m_xSize, m_ySize, m_grid);
@@ -199,16 +204,25 @@ namespace MechingCards.GameplayService {
         }
 
         private void AcquirePair(Vector3Int cell1, Vector3Int cell2) {
-            if (m_views.Count == 2) { // meaning the last pair left
-                m_onGameFinished?.Invoke();
-                return;
-            }
-            
             m_cellContent.Remove(cell1);
             m_cellContent.Remove(cell2);
             m_views.Remove(cell1);
             m_views.Remove(cell2);
             m_onMatch?.Invoke();
+            
+            if (m_views.Count == 0) { // meaning the last pair left
+                m_onWin?.Invoke();
+                m_onGameFinished?.Invoke();
+            }
+        }
+
+        private void OnDestroy() {
+            if (m_views.Count == 0) {
+                m_onSaveData?.Invoke(null,Vector2Int.zero);
+                return;
+            }
+            
+            m_onSaveData?.Invoke(m_cellContent.ToDictionary(kvp => kvp.Key, kvp => kvp.Value is {} ? kvp.Value.ID : -1), new Vector2Int(m_xSize, m_ySize));
         }
     }
 }

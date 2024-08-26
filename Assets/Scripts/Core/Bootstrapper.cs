@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MechingCards.Common;
 using MechingCards.InputService;
 using UnityEngine;
@@ -32,12 +33,12 @@ namespace MechingCards.Core {
                     return;
             }
 
-            var gameService = new GameplayService.GameplayService(inputService);
+            var gameService = new GameplayService.GameplayService(inputService, saveService);
             var menuService = new MenuService.MenuService(saveService, gameService);
             
             
-            Action onSaveServiceInitialized = () => {
-                menuService.Initialize();
+            Action<Dictionary<Vector3Int, int>, Vector2Int> onSaveServiceInitialized = (data, size) => {
+                menuService.Initialize(data, size);
             };
             saveService.Initialize(onSaveServiceInitialized);
         }
