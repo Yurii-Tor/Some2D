@@ -32,6 +32,7 @@ namespace MechingCards.GameplayService {
             m_ySize = rows;
             
             CreateBoard();
+            CameraUtils.SetupCamera(m_mainCamera, columns, rows, m_grid);
             ShowIntro();
         }
 
