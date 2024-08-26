@@ -38,6 +38,12 @@ namespace MechingCards.GameplayService {
             ShowIntro();
         }
 
+        public void Deinitialize() {
+            foreach (var view in m_views) {
+                Destroy(view.Value);
+            }
+        }
+
         private void CreateBoard() {
             var count = m_xSize * m_ySize / 2;
 
@@ -159,7 +165,7 @@ namespace MechingCards.GameplayService {
 
         private void OnRevealed(Vector3Int currentCell, Vector3Int? awaitingCardCell) {
             if (awaitingCardCell is not { }) {
-                return;
+                return; // just keep the card revealed
             }
 
             var acc = awaitingCardCell.Value;
