@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MechingCards.Common;
 using UnityEngine;
 
 namespace MechingCards.GameplayService {
@@ -10,8 +11,8 @@ namespace MechingCards.GameplayService {
 
         [SerializeField] private GameObject m_cardPrefab;
 
-        private int m_xSize = 2;
-        private int m_ySize = 3;
+        private int m_xSize = 5;
+        private int m_ySize = 5;
 
         private Dictionary<int, Sprite> m_idMap = new();
 
@@ -19,9 +20,15 @@ namespace MechingCards.GameplayService {
 
         private Dictionary<Vector3Int, CardView> m_views = new();
 
-        // Start is called before the first frame update
-        private void Start() {
+        private IInputController m_inputController;
+
+        public void Initialize(int columns, int rows, IInputController inputController) {
+            m_inputController = inputController;
+            
             // TODO: block inputs here
+            m_xSize = columns;
+            m_ySize = rows;
+            
             var count = m_xSize * m_ySize / 2;
 
             // get random sprites
@@ -65,16 +72,21 @@ namespace MechingCards.GameplayService {
             }
 
             foreach (var cell in m_cellContent) {
+                var card = cell.Value;
+                if (card is not { }) {
+                    continue; // skip the empty cell
+                }
                 var go = Instantiate(m_cardPrefab, m_grid.GetCellCenterWorld(cell.Key), Quaternion.identity);
 
                 var view = go.GetComponent<CardView>();
 
                 if (view is not { }) {
-                    //TODO: put debug log error
+                    Debug.LogError($"{nameof(GameplayController)} -> {nameof(Initialize)} :" +
+                                   $"Couldn't find a the {nameof(CardView)} component in the card prefab");
                     return;
                 }
 
-                var sprite = m_cardsMapping.SpritesList[cell.Value.ID];
+                var sprite = m_cardsMapping.SpritesList[card.ID];
 
                 m_views.Add(cell.Key, view);
                 view.Initialize(m_cardsMapping.BackSideSprite, sprite);
@@ -97,10 +109,10 @@ namespace MechingCards.GameplayService {
         }
 
         private void Update() {
-            if (Input.GetMouseButtonUp(0)) {
+            if (m_inputController.HasInput) {
                 // 0 is for left mouse button or first touch
                 var mainCamera = Camera.main;
-                var clickPosition = Input.mousePosition;
+                var clickPosition = m_inputController.Position;
                 var worldPosision = mainCamera.ScreenToWorldPoint(clickPosition);
                 worldPosision.z = 0;
 
