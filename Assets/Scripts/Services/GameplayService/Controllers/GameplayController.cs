@@ -21,14 +21,21 @@ namespace MechingCards.GameplayService {
         private Dictionary<Vector3Int, CardView> m_views = new();
 
         private IInputController m_inputController;
+        private Camera m_mainCamera;
 
         public void Initialize(int columns, int rows, IInputController inputController) {
             m_inputController = inputController;
+            inputController.BlockInput();
             
-            // TODO: block inputs here
+            m_mainCamera = Camera.main;
             m_xSize = columns;
             m_ySize = rows;
             
+            CreateBoard();
+            ShowIntro();
+        }
+
+        private void CreateBoard() {
             var count = m_xSize * m_ySize / 2;
 
             // get random sprites
@@ -92,7 +99,6 @@ namespace MechingCards.GameplayService {
                 view.Initialize(m_cardsMapping.BackSideSprite, sprite);
             }
             
-            ShowIntro();
         }
 
         private void ShowIntro() {
@@ -100,8 +106,8 @@ namespace MechingCards.GameplayService {
                 var card = view.Value;
                 card.Reveal((() => {
                     card.HideWithDelay(3f, () => {
-                        Debug.LogError("Done");
-                        //TODO: unlock inputs here
+                        Debug.LogError("Initialized");
+                        m_inputController.UnlockInput();
                     });
                 }));
             }
@@ -109,21 +115,36 @@ namespace MechingCards.GameplayService {
         }
 
         private void Update() {
-            if (m_inputController.HasInput) {
-                // 0 is for left mouse button or first touch
-                var mainCamera = Camera.main;
-                var clickPosition = m_inputController.Position;
-                var worldPosision = mainCamera.ScreenToWorldPoint(clickPosition);
-                worldPosision.z = 0;
-
-                var clickedCell = m_grid.WorldToCell(worldPosision);
-                if (!m_views.TryGetValue(clickedCell, out var card)) {
-                    return;
-                }
-                card.Reveal((() => {
-                    card.HideWithDelay(1f, () => Debug.LogError("Done"));
-                }));
+            if (m_inputController.IsLocked) {
+                return;
             }
+
+            if (!m_inputController.HasInput) {
+                return;
+            }
+
+            var clickPosition = m_inputController.Position;
+            var worldPosision = m_mainCamera.ScreenToWorldPoint(clickPosition);
+            worldPosision.z = 0;
+
+            var clickedCell = m_grid.WorldToCell(worldPosision);
+            
+            if (!m_views.TryGetValue(clickedCell, out var view)) {
+                return;
+            }
+
+            if (!m_cellContent.TryGetValue(clickedCell, out var card)) {
+                return;
+            }
+
+            if (card.IsLocked) {
+                return;
+            }
+            card.Lock();
+            
+            view.Reveal(() => {
+                view.HideWithDelay(1f, () => card.Unlock());
+            });
         }
     }
 }
