@@ -97,12 +97,13 @@ namespace MechingCards.GameplayService {
 			m_spriteRenderer.sprite = m_backSideSprite;
 		}
 
-		public void DestroyWithDelay(float delay) {
-			StartCoroutine(DestroyCoroutine(delay));
+		public void DestroyWithDelay(float delay, Action onDestroyed) {
+			StartCoroutine(DestroyCoroutine(delay, onDestroyed));
 		}
 
-		IEnumerator DestroyCoroutine(float delay) {
+		IEnumerator DestroyCoroutine(float delay, Action onDestroyed) {
 			yield return new WaitForSeconds(delay);
+			onDestroyed?.Invoke();
 			Destroy(gameObject);
 		}
 	}

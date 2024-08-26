@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using MechingCards.Common;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace MechingCards.GameplayService {
     public class GameplayController : MonoBehaviour {
@@ -24,14 +26,16 @@ namespace MechingCards.GameplayService {
         private Camera m_mainCamera;
 
         private Vector3Int? m_awaitingCard;
+        private Action m_onGameFinished;
 
-        public void Initialize(int columns, int rows, IInputController inputController) {
+        public void Initialize(int columns, int rows, IInputController inputController, Action onGameFinished) {
             m_inputController = inputController;
             inputController.BlockInput();
             
             m_mainCamera = Camera.main;
             m_xSize = columns;
             m_ySize = rows;
+            m_onGameFinished = onGameFinished;
             
             CreateBoard();
             CameraUtils.SetupCamera(m_mainCamera, columns, rows, m_grid);
@@ -175,17 +179,22 @@ namespace MechingCards.GameplayService {
             var awaitingCard = m_cellContent[acc];
             var awaitingView = m_views[acc];
             if (currentCard.ID == awaitingCard.ID) {
-                currentView.DestroyWithDelay(1f);
-                awaitingView.DestroyWithDelay(1f);
-                AcquirePair(currentCell, acc);
+                currentView.DestroyWithDelay(1f, null);
+                awaitingView.DestroyWithDelay(1f, () =>
+                    AcquirePair(currentCell, acc));
             } else {
                 currentView.HideWithDelay(1f, () => currentCard.Unlock());
                 awaitingView.HideWithDelay(1f, () => awaitingCard.Unlock());
             }
-            
         }
 
         private void AcquirePair(Vector3Int cell1, Vector3Int cell2) {
+            if (m_views.Count == 2) {
+                Deinitialize();
+                m_onGameFinished?.Invoke();
+                return;
+            }
+            
             m_cellContent.Remove(cell1);
             m_cellContent.Remove(cell2);
             m_views.Remove(cell1);

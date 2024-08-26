@@ -1,3 +1,4 @@
+using System;
 using MechingCards.Common;
 using UnityEngine;
 
@@ -10,11 +11,11 @@ namespace MechingCards.GameplayService {
 			m_inputService = inputService;
 		}
 
-		public void Initialize(int rows, int columns) {
+		public void Initialize(int rows, int columns, Action onGameFinished) {
 			var gameplayController = Resources.Load("GameplayController");
 			var gpgo = GameObject.Instantiate(gameplayController, null) as GameObject;
 			m_gameplayController = gpgo.GetComponent<GameplayController>();
-			m_gameplayController.Initialize(rows,columns, m_inputService.InputController);
+			m_gameplayController.Initialize(rows,columns, m_inputService.InputController, onGameFinished);
 			
 			var uiController = Resources.Load("UIController");
 			var uigo = GameObject.Instantiate(uiController, null) as GameObject;
@@ -23,6 +24,7 @@ namespace MechingCards.GameplayService {
 				m_gameplayController.Deinitialize();
 				GameObject.Destroy(gpgo);
 				GameObject.Destroy(uigo);
+				onGameFinished?.Invoke();
 			});
 		}
 	}

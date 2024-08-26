@@ -19,7 +19,7 @@ namespace MechingCards.MenuService {
 		}
 
 		private void OnStart(int rows, int columns) {
-			m_gameplayService.Initialize(rows, columns);
+			m_gameplayService.Initialize(rows, columns, Initialize);
 			GameObject.Destroy(m_menuController.gameObject);
 		}
 	}
