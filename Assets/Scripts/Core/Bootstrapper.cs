@@ -32,13 +32,12 @@ namespace MechingCards.Core {
                     return;
             }
 
-            var menuService = new MenuService.MenuService(saveService);
             var gameService = new GameplayService.GameplayService(inputService);
+            var menuService = new MenuService.MenuService(saveService, gameService);
             
             
             Action onSaveServiceInitialized = () => {
                 menuService.Initialize();
-                gameService.Initialize();
             };
             saveService.Initialize(onSaveServiceInitialized);
         }

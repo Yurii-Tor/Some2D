@@ -40,7 +40,7 @@ namespace MechingCards.GameplayService {
 
         public void Deinitialize() {
             foreach (var view in m_views) {
-                Destroy(view.Value);
+                Destroy(view.Value.gameObject);
             }
         }
 

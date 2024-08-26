@@ -1,5 +1,5 @@
 namespace MechingCards.Common {
 	public interface IGameplayService {
-		void Initialize();
+		void Initialize(int rows, int columns);
 	}
 }

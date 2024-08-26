@@ -10,11 +10,11 @@ namespace MechingCards.GameplayService {
 			m_inputService = inputService;
 		}
 
-		public void Initialize() {
+		public void Initialize(int rows, int columns) {
 			var gameplayController = Resources.Load("GameplayController");
 			var gpgo = GameObject.Instantiate(gameplayController, null) as GameObject;
 			m_gameplayController = gpgo.GetComponent<GameplayController>();
-			m_gameplayController.Initialize(3,3, m_inputService.InputController);
+			m_gameplayController.Initialize(rows,columns, m_inputService.InputController);
 			
 			var uiController = Resources.Load("UIController");
 			var uigo = GameObject.Instantiate(uiController, null) as GameObject;
