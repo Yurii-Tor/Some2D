@@ -15,17 +15,32 @@ namespace MechingCards.GameplayService {
 			var gameplayController = Resources.Load("GameplayController");
 			var gpgo = GameObject.Instantiate(gameplayController, null) as GameObject;
 			m_gameplayController = gpgo.GetComponent<GameplayController>();
-			m_gameplayController.Initialize(rows,columns, m_inputService.InputController, onGameFinished);
 			
-			var uiController = Resources.Load("UIController");
+				var uiController = Resources.Load("UIController");
 			var uigo = GameObject.Instantiate(uiController, null) as GameObject;
 			m_uiController = uigo.GetComponent<UIController>();
-			m_uiController.Initialize(0, 0, () => {
+			
+			
+			Action exitAction = () => {
 				m_gameplayController.Deinitialize();
 				GameObject.Destroy(gpgo);
 				GameObject.Destroy(uigo);
 				onGameFinished?.Invoke();
-			});
+			};
+
+			
+			m_uiController.Initialize(0, 0, exitAction);
+			
+			var data = new GameplayData() {
+				Rows = rows,
+				Columns = columns,
+				InputController = m_inputService.InputController,
+				OnMatch = m_uiController.Match,
+				OnTurn = m_uiController.Turn,
+				OnGameFinished = exitAction
+			};
+			
+			m_gameplayController.Initialize(data);
 		}
 	}
 }

@@ -28,17 +28,22 @@ namespace MechingCards.GameplayService {
         private Vector3Int? m_awaitingCard;
         private Action m_onGameFinished;
 
-        public void Initialize(int columns, int rows, IInputController inputController, Action onGameFinished) {
-            m_inputController = inputController;
-            inputController.BlockInput();
+        private Action m_onTurn;
+        private Action m_onMatch;
+
+        public void Initialize(GameplayData data) {
+            m_inputController = data.InputController;
+            m_inputController.BlockInput();
             
             m_mainCamera = Camera.main;
-            m_xSize = columns;
-            m_ySize = rows;
-            m_onGameFinished = onGameFinished;
+            m_xSize = data.Columns;
+            m_ySize = data.Rows;
+            m_onGameFinished = data.OnGameFinished;
+            m_onMatch = data.OnMatch;
+            m_onTurn = data.OnTurn;
             
             CreateBoard();
-            CameraUtils.SetupCamera(m_mainCamera, columns, rows, m_grid);
+            CameraUtils.SetupCamera(m_mainCamera, m_xSize, m_ySize, m_grid);
             ShowIntro();
         }
 
@@ -186,11 +191,11 @@ namespace MechingCards.GameplayService {
                 currentView.HideWithDelay(1f, () => currentCard.Unlock());
                 awaitingView.HideWithDelay(1f, () => awaitingCard.Unlock());
             }
+            m_onTurn?.Invoke();
         }
 
         private void AcquirePair(Vector3Int cell1, Vector3Int cell2) {
             if (m_views.Count == 2) {
-                Deinitialize();
                 m_onGameFinished?.Invoke();
                 return;
             }
@@ -199,6 +204,7 @@ namespace MechingCards.GameplayService {
             m_cellContent.Remove(cell2);
             m_views.Remove(cell1);
             m_views.Remove(cell2);
+            m_onMatch?.Invoke();
         }
     }
 }
