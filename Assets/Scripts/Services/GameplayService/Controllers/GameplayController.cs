@@ -23,6 +23,8 @@ namespace MechingCards.GameplayService {
         private IInputController m_inputController;
         private Camera m_mainCamera;
 
+        private Vector3Int? m_awaitingCard;
+
         public void Initialize(int columns, int rows, IInputController inputController) {
             m_inputController = inputController;
             inputController.BlockInput();
@@ -99,7 +101,8 @@ namespace MechingCards.GameplayService {
                 m_views.Add(cell.Key, view);
                 view.Initialize(m_cardsMapping.BackSideSprite, sprite);
             }
-            
+
+            m_awaitingCard = null;
         }
 
         private void ShowIntro() {
@@ -142,10 +145,45 @@ namespace MechingCards.GameplayService {
                 return;
             }
             card.Lock();
+
+            var awaitningCard = m_awaitingCard;
+            view.Reveal(() => OnRevealed(clickedCell, awaitningCard));
             
-            view.Reveal(() => {
-                view.HideWithDelay(1f, () => card.Unlock());
-            });
+            if (m_awaitingCard is not { }) {
+                m_awaitingCard = clickedCell;
+            } else {
+                m_awaitingCard = null;
+            }
+
+        }
+
+        private void OnRevealed(Vector3Int currentCell, Vector3Int? awaitingCardCell) {
+            if (awaitingCardCell is not { }) {
+                return;
+            }
+
+            var acc = awaitingCardCell.Value;
+            
+            var currentCard = m_cellContent[currentCell];
+            var currentView = m_views[currentCell];
+            var awaitingCard = m_cellContent[acc];
+            var awaitingView = m_views[acc];
+            if (currentCard.ID == awaitingCard.ID) {
+                currentView.DestroyWithDelay(1f);
+                awaitingView.DestroyWithDelay(1f);
+                AcquirePair(currentCell, acc);
+            } else {
+                currentView.HideWithDelay(1f, () => currentCard.Unlock());
+                awaitingView.HideWithDelay(1f, () => awaitingCard.Unlock());
+            }
+            
+        }
+
+        private void AcquirePair(Vector3Int cell1, Vector3Int cell2) {
+            m_cellContent.Remove(cell1);
+            m_cellContent.Remove(cell2);
+            m_views.Remove(cell1);
+            m_views.Remove(cell2);
         }
     }
 }
